@@ -3,14 +3,20 @@ import { useGameStore } from '../store/gameStore';
 export class WebSocketService {
   private socket: WebSocket | null = null;
   private gameId: string;
+  private token: string;
 
   constructor(gameId: string) {
     this.gameId = gameId;
+    this.token = localStorage.getItem('token') || '';
   }
 
   connect() {
-    this.socket = new WebSocket(`ws://localhost:8000/ws/game/${this.gameId}/`);
+    this.socket = new WebSocket(`ws://localhost:8000/ws/game/${this.gameId}/?token=${this.token}`);
     
+    this.socket.onopen = () => {
+      console.log('WebSocket Connected');
+    };
+
     this.socket.onmessage = (event) => {
       const data = JSON.parse(event.data);
       this.handleMessage(data);
@@ -18,6 +24,10 @@ export class WebSocketService {
 
     this.socket.onclose = () => {
       console.log('WebSocket connection closed');
+    };
+
+    this.socket.onerror = (error) => {
+      console.error('WebSocket error:', error);
     };
   }
 
@@ -38,6 +48,11 @@ export class WebSocketService {
         store.updateGameState({
           status: 'finished',
           winner: data.winner
+        });
+        break;
+      case 'player_joined':
+        store.updateGameState({
+          players: [...store.players, data.player]
         });
         break;
     }

@@ -3,9 +3,19 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 
 interface User {
-  id: string;
+  id: number;
   username: string;
   email: string;
+  gamesPlayed: number;
+  gamesWon: number;
+}
+
+interface ApiUser {
+  id: number;
+  username: string;
+  email: string;
+  played_games: number;
+  won_games: number;
 }
 
 interface AuthContextType {
@@ -42,14 +52,22 @@ api.interceptors.response.use(
   }
 );
 
+const transformUserData = (apiUser: ApiUser): User => ({
+  id: apiUser.id,
+  username: apiUser.username,
+  email: apiUser.email,
+  gamesPlayed: apiUser.played_games,
+  gamesWon: apiUser.won_games,
+});
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchUser = async () => {
     try {
-      const { data } = await api.get('/users/me/');
-      setUser(data);
+      const { data } = await api.get<ApiUser>('/users/me/');
+      setUser(transformUserData(data));
     } catch (error) {
       localStorage.removeItem('token');
       setUser(null);

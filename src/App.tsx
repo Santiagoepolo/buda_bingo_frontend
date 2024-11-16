@@ -1,7 +1,9 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { GameLobby } from './components/GameLobby';
-import { GameBoard } from './components/GameBoard';
+import { LoginPage } from './pages/LoginPage';
+import { HomePage } from './pages/HomePage';
+import { LobbyPage } from './pages/LobbyPage';
+import { GamePage } from './pages/GamePage';
 import { RegisterForm } from './components/RegisterForm';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { AuthProvider } from './contexts/AuthContext';
@@ -34,13 +36,29 @@ function App() {
       />
       <Router>
         <Routes>
-          <Route path="/" element={<GameLobby />} />
+          <Route path="/" element={<LoginPage />} />
           <Route path="/register" element={<RegisterForm />} />
+          <Route 
+            path="/home" 
+            element={
+              <ProtectedRoute>
+                <HomePage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/lobby" 
+            element={
+              <ProtectedRoute>
+                <LobbyPage />
+              </ProtectedRoute>
+            } 
+          />
           <Route 
             path="/game" 
             element={
               <ProtectedRoute>
-                <GameBoard />
+                <GamePage />
               </ProtectedRoute>
             } 
           />
